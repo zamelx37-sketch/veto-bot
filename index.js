@@ -115,21 +115,34 @@ Need help managing your voice channel? Use the commands below.
 
 ━━━━━━━━━━━━━━━━━━
 
-<:pen:1475466779445821440> **| name** change vc name
-<:padlock:1475466815349198929> **| lock/unlock**
-<:check:1475471936543785112> **| permit**
-<:auth:1475471991858266172> **| permall**
-<:forbidden:1475471815467073677> **| reject**
+<:pen:1475466779445821440> | name
+<:padlock:1475466815349198929> | lock / unlock
+<:check:1475471936543785112> | permit
+<:auth:1475471991858266172> | permall
+<:forbidden:1475471815467073677> | reject
 
-<:refresh:1475466704216920095> **| reset**
-<:volume:1475466641755082752> **| soundboard**
-<:hide:1475472028529197168> **| hide/unhide**
+<:refresh:1475466704216920095> | reset
+<:volume:1475466641755082752> | soundboard
+<:hide:1475472028529197168> | hide / unhide
+<:crown:1475472061693563104> | owner
+<:close:1475466610281156800> | transfer
 
-<:crown:1475472061693563104> **| owner**
-<:close:1475466610281156800> **| transfer**
+━━━━━━━━━━━━━━━━━━
+🆕 EXTRA COMMANDS
+━━━━━━━━━━━━━━━━━━
+
+<:transfer:1475481464324882523> | transfer
+<:claim:1475481418506309732> | claim
+<:status:1475481165254361251> | status
+<:mute:1475481232719478827> | tmute / tunmute
+<:remove:1475481135248310402> | kick user
+<:file:1475471843149217969> | bitrate
+<:waves:1475481328462991561> | sound waves
+<:mic:1472354314344464696> | slowmode
+
 ━━━━━━━━━━━━━━━━━━
 `)
-.setThumbnail("attachment://VETO.png") // ✅ صورة صغيرة فاليسار
+.setImage("attachment://VETO.png")
 .setTimestamp();
 
 setTimeout(()=>{
