@@ -101,7 +101,6 @@ PermissionsBitField.Flags.ViewChannel
 
 await member.voice.setChannel(channel);
 roomOwners.set(channel.id, member.id);
-
 /* ================= VETO PANEL ================= */
 
 const embed = new EmbedBuilder()
@@ -110,39 +109,43 @@ const embed = new EmbedBuilder()
 name:"One Tap – Help Panel",
 iconURL:client.user.displayAvatarURL()
 })
+
+.setThumbnail("attachment://VETO.png") // ✅ صورة صغيرة فوق ليسار
+
 .setDescription(`
 Need help managing your voice channel? Use the commands below.
 
 ━━━━━━━━━━━━━━━━━━
 
-<:pen:1475466779445821440> | name
-<:padlock:1475466815349198929> | lock / unlock
-<:check:1475471936543785112> | permit
-<:auth:1475471991858266172> | permall
-<:forbidden:1475471815467073677> | reject
+<:pen:1475466779445821440> **| name**
+<:padlock:1475466815349198929> **| lock / unlock**
+<:check:1475471936543785112> **| permit**
+<:auth:1475471991858266172> **| permall**
+<:forbidden:1475471815467073677> **| reject**
 
-<:refresh:1475466704216920095> | reset
-<:volume:1475466641755082752> | soundboard
-<:hide:1475472028529197168> | hide / unhide
-<:crown:1475472061693563104> | owner
-<:close:1475466610281156800> | transfer
+<:refresh:1475466704216920095> **| reset**
+<:volume:1475466641755082752> **| soundboard**
+<:hide:1475472028529197168> **| hide / unhide**
+
+<:crown:1475472061693563104> **| owner**
+<:close:1475466610281156800> **| transfer**
 
 ━━━━━━━━━━━━━━━━━━
-🆕 EXTRA COMMANDS
-━━━━━━━━━━━━━━━━━━
 
-<:transfer:1475481464324882523> | transfer
-<:claim:1475481418506309732> | claim
-<:status:1475481165254361251> | status
-<:mute:1475481232719478827> | tmute / tunmute
-<:remove:1475481135248310402> | kick user
-<:file:1475471843149217969> | bitrate
-<:waves:1475481328462991561> | sound waves
-<:mic:1472354314344464696> | slowmode
+<:transfer:1475481464324882523> **| transfer**
+<:claim:1475481418506309732> **| claim**
+<:status:1475481165254361251> **| status**
+<:mute:1475481232719478827> **| tmute / tunmute**
+<:remove:1475481135248310402> **| remove user**
+<:waves:1475471843149217969> **| bitrate**
+<:mic:1475481328462991561> **| slowmode**
+<:forbidden:1475471815467073677> **| blacklist**
+<:check:1475471936543785112> **| whitelist**
+<:auth:1475471991858266172> **| role whitelist**
+<:crown:1475472061693563104> **| co-owner**
 
 ━━━━━━━━━━━━━━━━━━
 `)
-.setImage("attachment://VETO.png")
 .setTimestamp();
 
 setTimeout(()=>{
@@ -151,13 +154,6 @@ embeds:[embed],
 files:["./VETO.png"]
 }).catch(()=>{});
 },1000);
-
-}catch(err){
-console.error("ROOM CREATE ERROR:",err);
-}
-
-});
-
 /* ================= AUTO DELETE ================= */
 
 client.on("voiceStateUpdate", async(oldState)=>{
