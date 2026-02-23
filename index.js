@@ -36,18 +36,17 @@ const client = new Client({
 
 const TOKEN = process.env.TOKEN;
 const CREATE_CHANNEL_ID = process.env.CREATE_CHANNEL_ID;
-const UNVERIFIED_ROLE_ID = process.env.UNVERIFIED_ROLE_ID;
 
 const roomOwners = new Map();
 
 /* ================= READY ================= */
 
-client.once("clientReady", async () => {
+client.once("clientReady", () => {
 
 console.log("👑 VETO SYSTEM READY");
 
 client.user.setPresence({
-  status: "online",
+  status:"online",
   activities:[{
     name:"Managing Veto Voice 🎙",
     type:0
@@ -82,10 +81,9 @@ PermissionsBitField.Flags.ViewChannel
 ]
 },
 {
-id:UNVERIFIED_ROLE_ID,
+id:process.env.UNVERIFIED_ROLE_ID,
 deny:[
-PermissionsBitField.Flags.Connect,
-PermissionsBitField.Flags.ViewChannel
+PermissionsBitField.Flags.Connect
 ]
 },
 {
@@ -104,36 +102,38 @@ PermissionsBitField.Flags.ViewChannel
 await member.voice.setChannel(channel);
 roomOwners.set(channel.id, member.id);
 
-/* ========= VETO PANEL ========= */
+/* ================= VETO PANEL ================= */
 
 const embed = new EmbedBuilder()
-.setColor("#ff0000")
-.setTitle("👑 VETO — Voice Control Panel")
+.setColor("#2b2d31")
+.setAuthor({
+name:"One Tap – Help Panel",
+iconURL:client.user.displayAvatarURL()
+})
 .setDescription(`
-Manage your private voice channel easily.
+Need help managing your voice channel? Use the commands below.
 
 ━━━━━━━━━━━━━━━━━━
 
-✏️ !rename — change room name  
-🔒 !lock / !unlock — lock room  
-👻 !hide / !unhide — hide room  
-👥 !limit — set user limit  
-📊 !info — room info  
+<:pen:1475466779445821440> **| name** change vc name
+<:padlock:1475466815349198929> **| lock/unlock**
+<:check:1475471936543785112> **| permit**
+<:auth:1475471991858266172> **| permall**
+<:forbidden:1475471815467073677> **| reject**
 
-👢 !kick @user  
-🎤 !mute @user  
-🔊 !unmute @user  
+<:refresh:1475466704216920095> **| reset**
+<:volume:1475466641755082752> **| soundboard**
+<:hide:1475472028529197168> **| hide/unhide**
 
-💣 !nuke — kick everyone  
-🗑️ !delete — delete room
-
+<:crown:1475472061693563104> **| owner**
+<:close:1475466610281156800> **| transfer**
 ━━━━━━━━━━━━━━━━━━
 `)
-.setImage("attachment://VETO.png")
+.setThumbnail("attachment://VETO.png") // ✅ صورة صغيرة فاليسار
 .setTimestamp();
 
-setTimeout(async ()=>{
-await channel.send({
+setTimeout(()=>{
+channel.send({
 embeds:[embed],
 files:["./VETO.png"]
 }).catch(()=>{});
@@ -149,8 +149,6 @@ console.error("ROOM CREATE ERROR:",err);
 
 client.on("voiceStateUpdate", async(oldState)=>{
 
-try{
-
 const channel = oldState.channel;
 if(!channel) return;
 if(!roomOwners.has(channel.id)) return;
@@ -161,17 +159,11 @@ await channel.delete().catch(()=>{});
 console.log("🗑 ROOM AUTO DELETED");
 }
 
-}catch(err){
-console.error("AUTO DELETE ERROR:",err);
-}
-
 });
 
-/* ================= COMMANDS ================= */
+/* ================= BASIC COMMANDS ================= */
 
 client.on("messageCreate", async(message)=>{
-
-try{
 
 if(message.author.bot) return;
 if(!message.member.voice.channel) return;
@@ -179,86 +171,26 @@ if(!message.member.voice.channel) return;
 const voiceChannel = message.member.voice.channel;
 const ownerId = roomOwners.get(voiceChannel.id);
 
-if(!ownerId) return;
-if(ownerId !== message.member.id)
-return message.reply("❌ Only Room Owner");
+if(ownerId !== message.member.id) return;
 
 const args = message.content.split(" ");
 const cmd = args[0].toLowerCase();
 
 if(cmd==="!lock"){
 await voiceChannel.permissionOverwrites.edit(message.guild.id,{Connect:false});
-message.reply("🔒 Room Locked");
+message.reply("🔒 Locked");
 }
 
 if(cmd==="!unlock"){
 await voiceChannel.permissionOverwrites.edit(message.guild.id,{Connect:true});
-message.reply("🔓 Room Unlocked");
+message.reply("🔓 Unlocked");
 }
 
-if(cmd==="!hide"){
-await voiceChannel.permissionOverwrites.edit(message.guild.id,{ViewChannel:false});
-message.reply("👻 Room Hidden");
-}
-
-if(cmd==="!unhide"){
-await voiceChannel.permissionOverwrites.edit(message.guild.id,{ViewChannel:true});
-message.reply("👁 Room Visible");
-}
-
-if(cmd==="!limit"){
-const limit=parseInt(args[1]);
-if(!limit) return;
-await voiceChannel.setUserLimit(limit);
-message.reply(`👥 Limit → ${limit}`);
-}
-
-if(cmd==="!rename"){
+if(cmd==="!name"){
 const name=args.slice(1).join(" ");
 if(!name) return;
 await voiceChannel.setName(`⚡・${name}`);
-message.reply("✏ Room Renamed");
-}
-
-if(cmd==="!info"){
-message.reply(`📊 ${voiceChannel.name} | 👥 ${voiceChannel.members.size}`);
-}
-
-if(cmd==="!kick"){
-const user=message.mentions.members.first();
-if(!user) return;
-await user.voice.disconnect();
-message.reply("👢 Member Kicked");
-}
-
-if(cmd==="!mute"){
-const user=message.mentions.members.first();
-if(!user) return;
-await user.voice.setMute(true);
-message.reply("🎤 Muted");
-}
-
-if(cmd==="!unmute"){
-const user=message.mentions.members.first();
-if(!user) return;
-await user.voice.setMute(false);
-message.reply("🔊 Unmuted");
-}
-
-if(cmd==="!nuke"){
-voiceChannel.members.forEach(m=>{
-if(m.id!==message.member.id) m.voice.disconnect();
-});
-message.reply("💣 Room Cleaned");
-}
-
-if(cmd==="!delete"){
-roomOwners.delete(voiceChannel.id);
-await voiceChannel.delete();
-}
-
-}catch(err){
-console.error("COMMAND ERROR:",err);
+message.reply("✏️ Renamed");
 }
 
 });
