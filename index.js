@@ -1,6 +1,6 @@
 require("dotenv").config();
 
-/* ================= KOYEB KEEP ALIVE ================= */
+/* ================= KEEP ALIVE ================= */
 
 const express = require("express");
 const app = express();
@@ -40,6 +40,8 @@ const CREATE_CHANNEL_ID = process.env.CREATE_CHANNEL_ID;
 
 const roomOwners = new Map();
 
+/* ================= READY ================= */
+
 client.once("clientReady", async () => {
 
 console.log("👑 VETO SYSTEM READY");
@@ -58,15 +60,20 @@ client.user.setPresence({
 
 client.on("voiceStateUpdate", async(oldState,newState)=>{
 
+try{
+
 if(!newState.channelId) return;
 if(newState.channelId !== CREATE_CHANNEL_ID) return;
 
 const member = newState.member;
 
+if(!member) return;
+if(!newState.channel) return;
+
 const channel = await newState.guild.channels.create({
 name:`⚡・${member.displayName}`,
 type:ChannelType.GuildVoice,
-parent:newState.channel.parent,
+parent:newState.channel?.parentId,
 
 permissionOverwrites:[
 {
@@ -111,11 +118,17 @@ setTimeout(()=>{
 channel.send({embeds:[embed]}).catch(()=>{});
 },1000);
 
+}catch(err){
+console.error("ROOM CREATE ERROR:",err);
+}
+
 });
 
 /* ================= AUTO DELETE ================= */
 
 client.on("voiceStateUpdate", async(oldState)=>{
+
+try{
 
 const channel = oldState.channel;
 if(!channel) return;
@@ -127,11 +140,17 @@ await channel.delete().catch(()=>{});
 console.log("🗑 ROOM AUTO DELETED");
 }
 
+}catch(err){
+console.error("AUTO DELETE ERROR:",err);
+}
+
 });
 
 /* ================= COMMANDS ================= */
 
 client.on("messageCreate", async(message)=>{
+
+try{
 
 if(message.author.bot) return;
 if(!message.member.voice.channel) return;
@@ -156,6 +175,15 @@ await voiceChannel.permissionOverwrites.edit(message.guild.id,{Connect:true});
 message.reply("🔓 Room Unlocked");
 }
 
+}catch(err){
+console.error("COMMAND ERROR:",err);
+}
+
 });
+
+/* ================= ANTI CRASH ================= */
+
+process.on("unhandledRejection", console.error);
+process.on("uncaughtException", console.error);
 
 client.login(TOKEN);
